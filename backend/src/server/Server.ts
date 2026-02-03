@@ -1,5 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors";
+import routes from '../routes'
 
 export class Server {
   private app: Application;
@@ -16,12 +17,7 @@ export class Server {
   }
 
   private initializeRoutes(): void {
-    this.app.get("/health", (_req, res) => {
-      res.status(200).json({
-        status: "ok",
-        message: "OOP Express server running 🚀",
-      });
-    });
+    this.app.use("/",routes)
   }
 
   public getApp(): Application {
