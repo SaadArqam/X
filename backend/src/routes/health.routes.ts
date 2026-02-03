@@ -1,11 +1,18 @@
 import { Router } from "express";
-const router=Router()
+import { ApiError } from "../utils/ApiError";
+import { asyncHandler } from "../utils/asyncHandler";
 
-router.get('/health',(req,res)=>{
+const router = Router();
+
+router.get(
+  "/health",
+  asyncHandler(async (_req, res) => {
     res.status(200).json({
-        status:"ok",
-        message:"OOPS server running!!!"
-    })
-})
+      status: "ok",
+      message: "OOP Express server running 🚀",
+    });
+  })
+);
+
 
 export default router;
