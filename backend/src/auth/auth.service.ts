@@ -4,11 +4,7 @@ import { ApiError } from "../utils/ApiError";
 import { signToken } from "../utils/jwt";
 
 export class AuthService {
-  static async register(
-    name: string,
-    email: string,
-    password: string
-  ) {
+  static async register(name: string, email: string, password: string) {
     try {
       const existingUser = await prisma.user.findUnique({
         where: {
@@ -37,7 +33,6 @@ export class AuthService {
         role: user.role,
       };
     } catch (err: any) {
-
       if (err.code && err.meta) {
         console.error("Prisma error code:", err.code);
         console.error("Prisma error meta:", err.meta);
@@ -49,11 +44,9 @@ export class AuthService {
 
   static async login(email: string, password: string) {
     try {
-
       if (!email || !password) {
         throw new ApiError(400, "Email and password are required");
       }
-
 
       const user = await prisma.user.findUnique({
         where: { email },
@@ -63,22 +56,16 @@ export class AuthService {
         throw new ApiError(401, "Invalid credentials");
       }
 
-
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        user.password
-      );
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
         throw new ApiError(401, "Invalid credentials");
       }
 
-
       const token = signToken({
         userId: user.id,
         role: user.role,
       });
-
 
       return {
         user: {
