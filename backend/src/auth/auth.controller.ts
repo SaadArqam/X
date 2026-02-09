@@ -14,3 +14,16 @@ export const registerController = async (
     ...user,
   });
 };
+
+export const loginCrontroller=async(
+  req:Request,
+  res:Response
+):Promise<void>=>{
+  const {email,password}=req.body;
+  const user =await AuthService.login(email,password)
+
+  res.status(201).json({
+    message:"User logged-in successfully",
+    ...user,
+  })
+}
