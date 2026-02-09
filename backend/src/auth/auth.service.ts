@@ -37,7 +37,7 @@ export class AuthService {
         role: user.role,
       };
     } catch (err: any) {
-      // Log detailed Prisma error information to help debugging
+
       if (err.code && err.meta) {
         console.error("Prisma error code:", err.code);
         console.error("Prisma error meta:", err.meta);

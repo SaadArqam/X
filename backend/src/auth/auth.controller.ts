@@ -6,7 +6,6 @@ export const registerController = async (
   res: Response
 ): Promise<void> => {
   const { name, email, password } = req.body;
-  // Call register once and return a single response.
   const user = await AuthService.register(name, email, password);
 
   res.status(201).json({
