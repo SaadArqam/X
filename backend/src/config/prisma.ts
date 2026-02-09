@@ -8,4 +8,12 @@ const connectionString = `${env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
-export const prisma = new PrismaClient({ adapter });
+// Create PrismaClient with the adapter. Recent Prisma builds using the
+// "client" engine require either an adapter or accelerateUrl.
+export const prisma = new PrismaClient({ adapter,
+	log: [
+		{ level: "info", emit: "stdout" },
+		{ level: "warn", emit: "stdout" },
+		{ level: "error", emit: "stdout" },
+	],
+});
