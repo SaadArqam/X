@@ -2,6 +2,7 @@ import { prisma } from "../config/prisma";
 import { ApiError } from "../utils/ApiError";
 
 export class BlogCrud {
+  // CREATE
   static async create(title: string, content: string, authorId: number) {
     try {
       if (!title || !content) {
@@ -27,6 +28,7 @@ export class BlogCrud {
     }
   }
 
+  // READ
   static async get(authorId: number) {
     try {
       const blogs = await prisma.blog.findMany({
@@ -46,6 +48,172 @@ export class BlogCrud {
       }
 
       console.error("BlogCrud.getMyBlogs error:", err?.message ?? err);
+      throw err;
+    }
+  }
+
+  // READ — PUBLIC BLOGS
+  static async getPublished() {
+    try {
+      const blogs = await prisma.blog.findMany({
+        where: {
+          published: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return blogs;
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+      console.error("BlogCrud.getPublished error:", err?.message ?? err);
+      throw err;
+    }
+  }
+
+  // READ — SINGLE BLOG BY ID
+  static async getById(blogId: number) {
+    try {
+      const blog = await prisma.blog.findFirst({
+        where: {
+          id: blogId,
+          published: true,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (!blog) {
+        throw new ApiError(404, "Blog not found");
+      }
+
+      return blog;
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+      console.error("BlogCrud.getById error:", err?.message ?? err);
+      throw err;
+    }
+  }
+
+  // UPDATE
+  static async update(
+    blogId: number,
+    authorId: number,
+    title?: string,
+    content?: string,
+  ) {
+    try {
+      const blog = await prisma.blog.findFirst({
+        where: {
+          id: blogId,
+          authorId: authorId,
+        },
+      });
+
+      if (!blog) {
+        throw new ApiError(404, "Blog not found or unauthorized");
+      }
+      const updatedBlog = await prisma.blog.update({
+        where: { id: blogId },
+        data: {
+          title: title ?? blog.title,
+          content: content ?? blog.content,
+        },
+      });
+
+      return updatedBlog;
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+      console.error("BlogCrud.update error:", err?.message ?? err);
+      throw err;
+    }
+  }
+
+  // UPDATE — PUBLISH / UNPUBLISH
+  static async togglePublish(
+    blogId: number,
+    authorId: number,
+    publish: boolean,
+  ) {
+    try {
+      const blog = await prisma.blog.findFirst({
+        where: {
+          id: blogId,
+          authorId: authorId,
+        },
+      });
+
+      if (!blog) {
+        throw new ApiError(404, "Blog not found or unauthorized");
+      }
+
+      const updatedBlog = await prisma.blog.update({
+        where: { id: blogId },
+        data: {
+          published: publish,
+        },
+      });
+
+      return updatedBlog;
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+      console.error("BlogCrud.togglePublish error:", err?.message ?? err);
+      throw err;
+    }
+  }
+
+  // DELETE
+  static async delete(blogId: number, authorId: number) {
+    try {
+      const blog = await prisma.blog.findFirst({
+        where: {
+          id: blogId,
+          authorId: authorId,
+        },
+      });
+
+      if (!blog) {
+        throw new ApiError(404, "Blog not found or unauthorized");
+      }
+
+      await prisma.blog.delete({
+        where: { id: blogId },
+      });
+
+      return { success: true };
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+      console.error("BlogCrud.delete error:", err?.message ?? err);
       throw err;
     }
   }
