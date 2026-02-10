@@ -35,7 +35,7 @@ export const blogGet = async (
 
 export const blogGetPublished = async (
   _req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const blogs = await BlogCrud.getPublished();
 
@@ -46,7 +46,7 @@ export const blogGetPublished = async (
 
 export const blogGetById = async (
   req: Request<{ id: string }>,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const blogId = Number(req.params.id);
 
@@ -59,7 +59,7 @@ export const blogGetById = async (
 
 export const blogTogglePublish = async (
   req: AuthRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const blogId = Number(req.params.id);
   const { publish } = req.body;

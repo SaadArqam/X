@@ -11,8 +11,7 @@ router.get(
       status: "ok",
       message: "OOP Express server running 🚀",
     });
-  })
+  }),
 );
-
 
 export default router;
