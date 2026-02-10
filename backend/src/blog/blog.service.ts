@@ -26,4 +26,27 @@ export class BlogCrud {
       throw err;
     }
   }
+
+  static async get(authorId: number) {
+    try {
+      const blogs = await prisma.blog.findMany({
+        where: {
+          authorId: authorId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return blogs;
+    } catch (err: any) {
+      if (err?.code && err?.meta) {
+        console.error("Prisma error code:", err.code);
+        console.error("Prisma error meta:", err.meta);
+      }
+
+      console.error("BlogCrud.getMyBlogs error:", err?.message ?? err);
+      throw err;
+    }
+  }
 }
