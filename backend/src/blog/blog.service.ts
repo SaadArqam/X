@@ -52,16 +52,30 @@ export class BlogCrud {
     }
   }
 
-  // READ — PUBLIC BLOGS
-  static async getPublished() {
+  // READ — PUBLIC BLOGS (WITH PAGINATION + SEARCH)
+  static async getPublished(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ) {
     try {
+      const skip = (page - 1) * limit;
+
       const blogs = await prisma.blog.findMany({
         where: {
           published: true,
+          ...(search && {
+            title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
         },
         orderBy: {
           createdAt: "desc",
         },
+        skip,
+        take: limit,
         include: {
           author: {
             select: {
@@ -72,12 +86,28 @@ export class BlogCrud {
         },
       });
 
-      return blogs;
+      const total = await prisma.blog.count({
+        where: {
+          published: true,
+          ...(search && {
+            title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }),
+        },
+      });
+
+      return {
+        data: blogs,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
     } catch (err: any) {
-      if (err?.code && err?.meta) {
-        console.error("Prisma error code:", err.code);
-        console.error("Prisma error meta:", err.meta);
-      }
       console.error("BlogCrud.getPublished error:", err?.message ?? err);
       throw err;
     }
