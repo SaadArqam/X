@@ -28,6 +28,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  comments Comment[]
 }
 
 model Blog {
@@ -41,4 +43,28 @@ model Blog {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  comments Comment[]
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String
+
+  blogId   Int
+  authorId Int
+  parentId Int?
+
+  blog   Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blogId])
+  @@index([authorId])
+  @@index([parentId])
 }

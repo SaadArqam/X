@@ -85,13 +85,20 @@ export const blogTogglePublish = async (
 
 export const blogUpdate = async (
   req: AuthRequest,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   const blogId = Number(req.params.id);
   const { title, content } = req.body;
   const userId = req.user!.userId;
+  const role = req.user!.role;
 
-  const updatedBlog = await BlogCrud.update(blogId, userId, title, content);
+  const updatedBlog = await BlogCrud.update(
+    blogId,
+    userId,
+    role,
+    title,
+    content
+  );
 
   res.status(200).json({
     message: "Blog updated successfully",
@@ -99,16 +106,19 @@ export const blogUpdate = async (
   });
 };
 
+
 export const blogDelete = async (
   req: AuthRequest,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   const blogId = Number(req.params.id);
   const userId = req.user!.userId;
+  const role = req.user!.role;
 
-  await BlogCrud.delete(blogId, userId);
+  await BlogCrud.delete(blogId, userId, role);
 
   res.status(200).json({
     message: "Blog deleted successfully",
   });
 };
+
