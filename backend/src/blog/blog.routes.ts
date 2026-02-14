@@ -9,6 +9,9 @@ import {
   blogGetPublished,
   blogGetById,
 } from "./blog.controller";
+import commentRoutes from "../comment/comment.routes"
+
+
 
 const blogRoutes = Router();
 
@@ -24,4 +27,5 @@ blogRoutes.delete("/:id", authMiddleware, blogDelete);
 
 blogRoutes.patch("/:id/publish", authMiddleware, blogTogglePublish);
 
+commentRoutes.use("/:blogId/comments", commentRoutes)
 export default blogRoutes;

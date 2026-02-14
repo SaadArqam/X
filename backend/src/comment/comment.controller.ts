@@ -1,7 +1,9 @@
-import { Response } from "express"
+import { Request,Response } from "express"
 import { AuthRequest } from "../middlewares/auth.middleware"
 
 import { createComment } from "./comment.service"
+import { getCommentsByBlog } from "./comment.service"
+
 
 export const createCommentController = async (
   req: AuthRequest,
@@ -31,3 +33,27 @@ export const createCommentController = async (
   }
 }
 
+interface BlogParams {
+  blogId: string
+}
+
+export const getCommentsController = async (
+  req: Request<BlogParams>,
+  res: Response
+) => {
+  try {
+    const blogId = Number(req.params.blogId)
+
+    const comments = await getCommentsByBlog(blogId)
+
+    res.status(200).json({
+      success: true,
+      data: comments,
+    })
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    })
+  }
+}
