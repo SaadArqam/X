@@ -73,4 +73,4 @@ User M — M Post (via Like)
 
 ## ER Diagram 
 
-![ER Diagram ](/Er_Diagram.jpg)
+![ER Diagram ](/ER_Diagram.jpg)
