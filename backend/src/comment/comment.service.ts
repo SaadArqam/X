@@ -104,3 +104,65 @@ export const getCommentsByBlog = async (blogId: number) => {
   }
 }
 
+export const updateComment = async (
+  commentId: number,
+  userId: number,
+  role: string,
+  content: string
+) => {
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+
+    // Ownership check
+    if (role !== "ADMIN" && comment.authorId !== userId) {
+      throw new Error("Unauthorized to update this comment");
+    }
+
+    const updated = await prisma.comment.update({
+      where: { id: commentId },
+      data: { content },
+    });
+
+    return updated;
+  } catch (error: any) {
+    console.error("Error updating comment:", error);
+    throw new Error(error.message || "Failed to update comment");
+  }
+};
+
+export const deleteComment = async (
+  commentId: number,
+  userId: number,
+  role: string
+) => {
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+
+    if (role !== "ADMIN" && comment.authorId !== userId) {
+      throw new Error("Unauthorized to delete this comment");
+    }
+
+    await prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    return true;
+  } catch (error: any) {
+    console.error("Error deleting comment:", error);
+    throw new Error(error.message || "Failed to delete comment");
+  }
+};
+
+

@@ -3,6 +3,8 @@ import { AuthRequest } from "../middlewares/auth.middleware"
 
 import { createComment } from "./comment.service"
 import { getCommentsByBlog } from "./comment.service"
+import { updateComment } from "./comment.service"
+import { deleteComment } from "./comment.service"
 
 
 export const createCommentController = async (
@@ -57,3 +59,53 @@ export const getCommentsController = async (
     })
   }
 }
+
+export const updateCommentController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const commentId = Number(req.params.commentId);
+    const { userId, role } = req.user!;
+
+    const updated = await updateComment(
+      commentId,
+      userId,
+      role,
+      req.body.content
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Comment updated successfully",
+      data: updated,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteCommentController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const commentId = Number(req.params.commentId);
+    const { userId, role } = req.user!;
+
+    await deleteComment(commentId, userId, role);
+
+    res.status(200).json({
+      success: true,
+      message: "Comment deleted successfully",
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
