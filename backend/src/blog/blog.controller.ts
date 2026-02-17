@@ -1,124 +1,112 @@
-// import { Response } from "express";
 import { BlogCrud } from "./blog.service";
 import { AuthRequest } from "../middlewares/auth.middleware";
-import { title } from "node:process";
 import { Request, Response } from "express";
+import { asyncHandler } from "../utils/asyncHandler";
+import { ApiError } from "../utils/ApiError";
 
-export const blogCreate = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
-  const { title, content } = req.body;
+export const blogCreate = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const { title, content } = req.body;
 
-  const userId = req.user!.userId;
+    const userId = req.user!.userId;
 
-  const blog = await BlogCrud.create(title, content, userId);
+    const blog = await BlogCrud.create(title, content, userId);
 
-  res.status(201).json({
-    message: "Blog created successfully",
-    blog,
-  });
-};
-
-export const blogGet = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
-  const userId = req.user!.userId;
-
-  const blogs = await BlogCrud.get(userId);
-
-  res.status(200).json({
-    blogs,
-  });
-};
-
-export const blogGetPublished = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const search = req.query.search as string | undefined;
-
-  const result = await BlogCrud.getPublished(page, limit, search);
-
-  res.status(200).json(result);
-};
-
-
-export const blogGetById = async (
-  req: Request<{ id: string }>,
-  res: Response,
-): Promise<void> => {
-  const blogId = Number(req.params.id);
-
-  const blog = await BlogCrud.getById(blogId);
-
-  res.status(200).json({
-    blog,
-  });
-};
-
-export const blogTogglePublish = async (
-  req: AuthRequest,
-  res: Response,
-): Promise<void> => {
-  const blogId = Number(req.params.id);
-  const { publish } = req.body;
-  const userId = req.user!.userId;
-
-  if (typeof publish !== "boolean") {
-    res.status(400).json({
-      message: "`publish` must be boolean",
+    res.status(201).json({
+      message: "Blog created successfully",
+      blog,
     });
-    return;
   }
+);
 
-  const blog = await BlogCrud.togglePublish(blogId, userId, publish);
+export const blogGet = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const userId = req.user!.userId;
 
-  res.status(200).json({
-    message: publish ? "Blog published" : "Blog unpublished",
-    blog,
-  });
-};
+    const blogs = await BlogCrud.get(userId);
 
-export const blogUpdate = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  const blogId = Number(req.params.id);
-  const { title, content } = req.body;
-  const userId = req.user!.userId;
-  const role = req.user!.role;
+    res.status(200).json({
+      blogs,
+    });
+  }
+);
 
-  const updatedBlog = await BlogCrud.update(
-    blogId,
-    userId,
-    role,
-    title,
-    content
-  );
+export const blogGetPublished = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search as string | undefined;
 
-  res.status(200).json({
-    message: "Blog updated successfully",
-    blog: updatedBlog,
-  });
-};
+    const result = await BlogCrud.getPublished(page, limit, search);
 
+    res.status(200).json(result);
+  }
+);
 
-export const blogDelete = async (
-  req: AuthRequest,
-  res: Response
-): Promise<void> => {
-  const blogId = Number(req.params.id);
-  const userId = req.user!.userId;
-  const role = req.user!.role;
+export const blogGetById = asyncHandler(
+  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+    const blogId = Number(req.params.id);
 
-  await BlogCrud.delete(blogId, userId, role);
+    const blog = await BlogCrud.getById(blogId);
 
-  res.status(200).json({
-    message: "Blog deleted successfully",
-  });
-};
+    res.status(200).json({
+      blog,
+    });
+  }
+);
+
+export const blogTogglePublish = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const blogId = Number(req.params.id);
+    const { publish } = req.body;
+    const userId = req.user!.userId;
+
+    if (typeof publish !== "boolean") {
+      throw new ApiError(400, "`publish` must be boolean");
+    }
+
+    const blog = await BlogCrud.togglePublish(blogId, userId, publish);
+
+    res.status(200).json({
+      message: publish ? "Blog published" : "Blog unpublished",
+      blog,
+    });
+  }
+);
+
+export const blogUpdate = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const blogId = Number(req.params.id);
+    const { title, content } = req.body;
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    const updatedBlog = await BlogCrud.update(
+      blogId,
+      userId,
+      role,
+      title,
+      content
+    );
+
+    res.status(200).json({
+      message: "Blog updated successfully",
+      blog: updatedBlog,
+    });
+  }
+);
+
+export const blogDelete = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const blogId = Number(req.params.id);
+    const userId = req.user!.userId;
+    const role = req.user!.role;
+
+    await BlogCrud.delete(blogId, userId, role);
+
+    res.status(200).json({
+      message: "Blog deleted successfully",
+    });
+  }
+);
 
