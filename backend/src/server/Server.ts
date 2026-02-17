@@ -2,6 +2,8 @@ import express, { Application } from "express";
 import cors from "cors";
 import routes from '../routes'
 
+import cookieParser from "cookie-parser";
+
 export class Server {
   private app: Application;
 
@@ -14,6 +16,7 @@ export class Server {
   private initializeMiddlewares(): void {
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(cookieParser())
   }
 
   private initializeRoutes(): void {

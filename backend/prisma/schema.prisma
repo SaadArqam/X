@@ -30,6 +30,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   comments Comment[]
+  refreshTokens RefreshToken[]
+
 }
 
 model Blog {
@@ -68,3 +70,17 @@ model Comment {
   @@index([authorId])
   @@index([parentId])
 }
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
