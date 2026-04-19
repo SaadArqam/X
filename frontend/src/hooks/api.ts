@@ -24,14 +24,14 @@ export const useBlogs = (search?: string, tag?: string) => {
   });
 };
 
-export const useBlog = (id: string) => {
+export const useBlog = (id: number) => {
   return useQuery({
     queryKey: ['blog', id],
     queryFn: async () => {
       const res = await api.get<ApiResponse<Blog>>(`/blogs/${id}`);
       return res.data.data;
     },
-    enabled: !!id && id !== 'create',
+    enabled: !!id,
   });
 };
 
@@ -48,7 +48,7 @@ export const useCreateBlog = () => {
   });
 };
 
-export const useUpdateBlog = (id: string) => {
+export const useUpdateBlog = (id: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: Partial<Blog>) => {
@@ -65,7 +65,7 @@ export const useUpdateBlog = (id: string) => {
 export const useDeleteBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       await api.delete(`/blogs/${id}`);
     },
     onSuccess: (_, id) => {
@@ -88,14 +88,14 @@ export const useLikeBlog = () => {
       return res.data.data;
     },
     onMutate: async ({ id, isLiked }) => {
-      await queryClient.cancelQueries({ queryKey: ['blog', String(id)] });
+      await queryClient.cancelQueries({ queryKey: ['blog', id] });
       await queryClient.cancelQueries({ queryKey: ['blogs'] });
 
-      const prevBlog = queryClient.getQueryData(['blog', String(id)]);
+      const prevBlog = queryClient.getQueryData(['blog', id]);
       const prevBlogs = queryClient.getQueryData(['blogs']);
 
       if (prevBlog) {
-        queryClient.setQueryData(['blog', String(id)], (old: any) => ({
+        queryClient.setQueryData(['blog', id], (old: any) => ({
           ...old,
           isLiked: !isLiked,
           likesCount: isLiked ? Math.max(0, old.likesCount - 1) : old.likesCount + 1,
@@ -119,7 +119,7 @@ export const useLikeBlog = () => {
     },
     onError: (err, variables, context) => {
       if (context?.prevBlog) {
-        queryClient.setQueryData(['blog', String(context.id)], context.prevBlog);
+        queryClient.setQueryData(['blog', context.id], context.prevBlog);
       }
       if (context?.prevBlogs) {
         queryClient.setQueryData(['blogs'], context.prevBlogs);
@@ -127,7 +127,7 @@ export const useLikeBlog = () => {
     },
     onSettled: (_, __, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
-      queryClient.invalidateQueries({ queryKey: ['blog', String(id)] });
+      queryClient.invalidateQueries({ queryKey: ['blog', id] });
     },
   });
 };
@@ -145,14 +145,14 @@ export const useBookmarkBlog = () => {
       return res.data.data;
     },
     onMutate: async ({ id, isBookmarked }) => {
-      await queryClient.cancelQueries({ queryKey: ['blog', String(id)] });
+      await queryClient.cancelQueries({ queryKey: ['blog', id] });
       await queryClient.cancelQueries({ queryKey: ['blogs'] });
 
-      const prevBlog = queryClient.getQueryData(['blog', String(id)]);
+      const prevBlog = queryClient.getQueryData(['blog', id]);
       const prevBlogs = queryClient.getQueryData(['blogs']);
 
       if (prevBlog) {
-        queryClient.setQueryData(['blog', String(id)], (old: any) => ({
+        queryClient.setQueryData(['blog', id], (old: any) => ({
           ...old,
           isBookmarked: !isBookmarked,
         }));
@@ -175,7 +175,7 @@ export const useBookmarkBlog = () => {
     },
     onError: (err, variables, context) => {
       if (context?.prevBlog) {
-        queryClient.setQueryData(['blog', String(context.id)], context.prevBlog);
+        queryClient.setQueryData(['blog', context.id], context.prevBlog);
       }
       if (context?.prevBlogs) {
         queryClient.setQueryData(['blogs'], context.prevBlogs);
@@ -183,12 +183,12 @@ export const useBookmarkBlog = () => {
     },
     onSettled: (_, __, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
-      queryClient.invalidateQueries({ queryKey: ['blog', String(id)] });
+      queryClient.invalidateQueries({ queryKey: ['blog', id] });
     },
   });
 };
 
-export const useComments = (blogId: string) => {
+export const useComments = (blogId: number) => {
   return useQuery({
     queryKey: ['comments', blogId],
     queryFn: async () => {
@@ -210,13 +210,13 @@ export const useCreateComment = () => {
       content,
       parentId,
     }: {
-      blogId: string;
+      blogId: number;
       content: string;
       parentId?: number | null;
     }) => {
       const url = `/comments`;
       const payload = {
-        blogId: Number(blogId),
+        blogId,
         content: content.trim(),
         parentId: parentId || null
       };
@@ -239,7 +239,7 @@ export const useCreateComment = () => {
 export const useDeleteComment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, blogId }: { id: string; blogId: string }) => {
+    mutationFn: async ({ id, blogId }: { id: number; blogId: number }) => {
       await api.delete(`/comments/${id}`);
       return blogId;
     },

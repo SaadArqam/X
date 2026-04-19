@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/useToast';
 import { useState } from 'react';
 
 interface LikeButtonProps {
-  blogId: string;
+  blogId: number;
   initialLiked?: boolean;
   initialCount?: number;
 }
@@ -34,7 +34,7 @@ export const LikeButton = ({ blogId, initialLiked = false, initialCount = 0 }: L
     }
 
     // Call mutation with object containing id and whether it's currently liked (to determine POST or DELETE)
-    mutate({ id: Number(blogId), isLiked: !!initialLiked });
+    mutate({ id: blogId, isLiked: !!initialLiked });
   };
 
   return (

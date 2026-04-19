@@ -10,7 +10,7 @@ import { ChevronDown, MessageSquare, Trash2, Send, Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/useToast';
 import { slideInLeft } from '@/lib/animations';
 
-const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: string }) => {
+const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: number }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
@@ -160,7 +160,7 @@ const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: string }) 
   );
 };
 
-export const CommentThread = ({ blogId }: { blogId: string }) => {
+export const CommentThread = ({ blogId }: { blogId: number }) => {
   const { data: comments, isLoading } = useComments(blogId);
   const { mutate: createComment, isPending } = useCreateComment();
   const { isAuthenticated } = useAuthStore();

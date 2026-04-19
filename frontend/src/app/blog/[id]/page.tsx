@@ -16,7 +16,7 @@ import { useState, useEffect } from 'react';
 export default function PostDetailPage({ params }: { params: { id: string } }) {
   // Guard: /blog/create conflicts with this dynamic route — redirect to the real create page
   if (params.id === 'create') redirect('/create');
-  const { data: blog, isLoading, isError } = useBlog(params.id);
+  const { data: blog, isLoading, isError } = useBlog(Number(params.id));
   const [relativeTime, setRelativeTime] = useState<string>('');
 
   useEffect(() => {

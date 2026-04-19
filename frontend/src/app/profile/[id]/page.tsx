@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { scaleIn } from '@/lib/animations';
 import { Loader2 } from 'lucide-react';
 import { PostCard } from '@/components/blog/PostCard';
+import { Blog } from '@/types';
 
 const CountUp = ({ value = 0 }: { value?: number }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -130,7 +131,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
             exit="exit"
             className="w-full flex flex-col space-y-6 pb-20"
           >
-            {currentBlogs.length > 0 ? currentBlogs.map((blog, i) => (
+            {currentBlogs.length > 0 ? currentBlogs.map((blog: Blog, i: number) => (
               <motion.div 
                 key={blog.id}
                 variants={scaleIn}

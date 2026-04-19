@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/useToast';
 import { useState } from 'react';
 
 interface BookmarkButtonProps {
-  blogId: string;
+  blogId: number;
   initialBookmarked?: boolean;
 }
 
@@ -28,7 +28,7 @@ export const BookmarkButton = ({ blogId, initialBookmarked = false }: BookmarkBu
     
     if (isPending) return;
 
-    mutate({ id: Number(blogId), isBookmarked: !!initialBookmarked });
+    mutate({ id: blogId, isBookmarked: !!initialBookmarked });
 
     if (!initialBookmarked) {
       setShowTooltip(true);
