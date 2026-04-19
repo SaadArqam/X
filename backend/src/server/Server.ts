@@ -21,7 +21,10 @@ export class Server {
   }
 
   private initializeMiddlewares(): void {
-    const allowedOrigins = ["http://localhost:3000"];
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://x-blond-delta.vercel.app"
+    ];
 
     // 1. CORS first — before anything touches headers
     this.app.use(
@@ -50,7 +53,7 @@ export class Server {
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "http://localhost:3000"],
+            connectSrc: ["'self'", ...allowedOrigins],
             frameSrc: ["'none'"],
           },
         },

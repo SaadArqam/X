@@ -8,6 +8,7 @@ const connectionString = env.DATABASE_URL;
 // Create pg pool
 const pool = new Pool({
   connectionString,
+  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
 });
 
 // Create adapter
