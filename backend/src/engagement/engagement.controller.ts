@@ -6,17 +6,27 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 
 export class EngagementController {
   static toggleLike = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = Number(req.body.blogId || req.params.blogId);
+    const { blogId } = req.body;
     const userId = req.user!.userId;
-    const result = await EngagementService.toggleLike(blogId, userId);
-    res.status(200).json(new ApiResponse(200, result, result.liked ? "Blog liked" : "Blog unliked"));
+    try {
+      const result = await EngagementService.toggleLike(Number(blogId), userId);
+      res.status(200).json(new ApiResponse(200, result, result.liked ? "Blog liked" : "Blog unliked"));
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ message: error.message || "Failed to toggle like" });
+    }
   });
 
   static toggleBookmark = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = Number(req.body.blogId || req.params.blogId);
+    const { blogId } = req.body;
     const userId = req.user!.userId;
-    const result = await EngagementService.toggleBookmark(blogId, userId);
-    res.status(200).json(new ApiResponse(200, result, result.bookmarked ? "Blog bookmarked" : "Bookmark removed"));
+    try {
+      const result = await EngagementService.toggleBookmark(Number(blogId), userId);
+      res.status(200).json(new ApiResponse(200, result, result.bookmarked ? "Blog bookmarked" : "Bookmark removed"));
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ message: error.message || "Failed to toggle bookmark" });
+    }
   });
 
   static getBookmarks = asyncHandler(async (req: AuthRequest, res: Response) => {

@@ -79,10 +79,10 @@ export const useLikeBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, isLiked }: { id: number; isLiked: boolean }) => {
-      const url = `/engagement/like/${id}`;
+      const url = `/engagement/like`;
       console.log("REQUEST:", url);
       
-      const res = await api.post<ApiResponse<{ liked: boolean }>>(url);
+      const res = await api.post<ApiResponse<{ liked: boolean }>>(url, { blogId: id });
       
       console.log("RESPONSE:", res.data);
       return res.data.data;
@@ -136,10 +136,10 @@ export const useBookmarkBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, isBookmarked }: { id: number; isBookmarked: boolean }) => {
-      const url = `/engagement/bookmark/${id}`;
+      const url = `/engagement/bookmark`;
       console.log("REQUEST:", url);
       
-      const res = await api.post<ApiResponse<{ bookmarked: boolean }>>(url);
+      const res = await api.post<ApiResponse<{ bookmarked: boolean }>>(url, { blogId: id });
       
       console.log("RESPONSE:", res.data);
       return res.data.data;
@@ -214,8 +214,9 @@ export const useCreateComment = () => {
       content: string;
       parentId?: number | null;
     }) => {
-      const url = `/comments/blog/${blogId}`;
+      const url = `/comments`;
       const payload = {
+        blogId: Number(blogId),
         content: content.trim(),
         parentId: parentId || null
       };

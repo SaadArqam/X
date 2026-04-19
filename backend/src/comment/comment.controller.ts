@@ -6,16 +6,20 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 
 export class CommentController {
   static create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { blogId: rawBlogId, content, parentId } = req.body as {
+    const { blogId, content, parentId } = req.body as {
       blogId: number | string;
       content: string;
       parentId?: number;
     };
-    const blogId = Number(rawBlogId || req.params.blogId);
     const userId = req.user!.userId;
 
-    const comment = await CommentService.create(blogId, userId, content, parentId);
-    res.status(201).json(new ApiResponse(201, comment, "Comment added successfully"));
+    try {
+      const comment = await CommentService.create(Number(blogId), userId, content, parentId);
+      res.status(201).json(new ApiResponse(201, comment, "Comment added successfully"));
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ message: error.message || "Failed to add comment" });
+    }
   });
 
   static getByBlog = asyncHandler(async (req: Request, res: Response) => {
