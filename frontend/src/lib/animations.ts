@@ -37,3 +37,9 @@ export const pageVariants: Variants = {
   animate: { opacity: 1, transition: springConfig.fast },
   exit: { opacity: 0 },
 };
+
+export const slideInLeft = {
+  initial: { opacity: 0, x: -20 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.2, ease: 'easeOut' } },
+  exit: { opacity: 0, x: -20 }
+};
