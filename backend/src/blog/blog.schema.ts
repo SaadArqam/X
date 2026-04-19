@@ -3,6 +3,10 @@ import { z } from "zod";
 export const createBlogSchema = z.object({
   title: z.string().min(5).max(200),
   content: z.string().min(10),
+  excerpt: z.string().min(10).max(500).optional(),
+  coverImage: z.string().url().optional().or(z.literal('')),
+  tags: z.array(z.string().min(1).max(30)).max(5).default([]),
+  status: z.enum(['draft', 'published']).default('published'),
 });
 
 export const updateBlogSchema = z.object({

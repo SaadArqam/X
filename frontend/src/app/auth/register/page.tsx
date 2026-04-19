@@ -1,170 +1,86 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import { scaleIn } from '@/lib/animations';
-import { useAuthStore } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore } from '@/lib/auth';
 import api from '@/lib/api';
-import { useToast } from '@/hooks/useToast';
-import { Loader2, CheckCircle2 } from 'lucide-react';
-
-const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterForm>({
-    resolver: zodResolver(registerSchema),
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const setAuth = useAuthStore((state) => state.setAuth);
   const router = useRouter();
-  const { toast } = useToast();
+  const { setAuth } = useAuthStore();
+  const [form, setForm] = useState({
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data: RegisterForm) => {
-    setIsLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const res = await api.post('/auth/register', data);
-      setIsSuccess(true);
-      setAuth(res.data.user, res.data.accessToken);
-      setTimeout(() => router.push('/'), 1000);
-    } catch (error: any) {
-      toast(error.response?.data?.message || 'Registration failed', 'error');
+      const res = await api.post('/auth/register', form);
+      const { user, accessToken } = res.data.data;
+      setAuth(user, accessToken);
+      router.push('/');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Registration failed');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
   return (
-    <div className="flex min-h-[80vh] items-center justify-center p-4">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="register-card"
-          variants={scaleIn}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="w-full max-w-md p-8 bg-gray-900 border border-gray-800 rounded-2xl shadow-xl"
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white tracking-tight">Create Account</h2>
-            <p className="text-gray-400 mt-2">Join the developer community</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1c] px-4">
+      <div className="w-full max-w-md bg-gray-900 rounded-2xl border border-gray-800 p-8">
+        <h1 className="text-2xl font-bold text-white text-center mb-2">
+          Create Account
+        </h1>
+        <p className="text-gray-400 text-center mb-8">
+          Join the developer community
+        </p>
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded-lg text-red-400 text-sm">
+            {error}
           </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="relative">
-              <input
-                {...register('name')}
-                type="text"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
-              />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Full Name
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {(['name', 'username', 'email', 'password'] as const).map((field) => (
+            <div key={field}>
+              <label className="block text-sm text-gray-400 mb-1 capitalize">
+                {field === 'name' ? 'Full Name' : field}
               </label>
-              {errors.name && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.name.message}
-                </motion.p>
-              )}
-            </div>
-
-            <div className="relative">
               <input
-                {...register('username')}
-                type="text"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
+                type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                value={form[field]}
+                onChange={update(field)}
+                required
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
               />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Username
-              </label>
-              {errors.username && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.username.message}
-                </motion.p>
-              )}
             </div>
-
-            <div className="relative">
-              <input
-                {...register('email')}
-                type="email"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
-              />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Email
-              </label>
-              {errors.email && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </motion.p>
-              )}
-            </div>
-
-            <div className="relative">
-              <input
-                {...register('password')}
-                type="password"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
-              />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Password
-              </label>
-              {errors.password && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </motion.p>
-              )}
-            </div>
-
-            <motion.button
-              type="submit"
-              disabled={isLoading || isSuccess}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md shadow-blue-900/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isSuccess ? (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center space-x-2">
-                  <CheckCircle2 size={20} />
-                  <span>Account Created!</span>
-                </motion.div>
-              ) : isLoading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <span>Register</span>
-              )}
-            </motion.button>
-          </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-gray-400 text-sm">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                Sign in here
-              </Link>
-            </p>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          ))}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
+          >
+            {loading ? 'Creating account...' : 'Register'}
+          </button>
+        </form>
+        <p className="text-center text-gray-400 mt-6 text-sm">
+          Already have an account?{' '}
+          <Link href="/auth/login" className="text-blue-400 hover:underline">
+            Sign in here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

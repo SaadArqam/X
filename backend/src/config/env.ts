@@ -4,13 +4,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const envSchema = z.object({
-  PORT: z.string().transform(Number).default("5000"),
+  PORT: z.coerce.number().default(5000),
   DATABASE_URL: z.string().url(),
   ACCESS_TOKEN_SECRET: z.string().min(32),
   REFRESH_TOKEN_SECRET: z.string().min(32),
   JWT_ACCESS_EXPIRY: z.string().default("15m"),
   JWT_REFRESH_EXPIRY: z.string().default("7d"),
-  BCRYPT_ROUNDS: z.string().transform(Number).default("12"),
+  BCRYPT_ROUNDS: z.coerce.number().default(12),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   REDIS_URL: z.string().url().optional(),

@@ -6,9 +6,21 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 
 export class BlogController {
   static create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { title, content } = req.body as { title: string; content: string };
+    const { title, content, excerpt, coverImage, tags, status } = req.body as {
+      title: string;
+      content: string;
+      excerpt?: string;
+      coverImage?: string;
+      tags?: string[];
+      status?: 'draft' | 'published';
+    };
     const authorId = req.user!.userId;
-    const blog = await BlogService.create(title, content, authorId);
+    const blog = await BlogService.create(title, content, authorId, {
+      excerpt,
+      coverImage,
+      tags,
+      published: status !== 'draft',
+    });
     res.status(201).json(new ApiResponse(201, blog, "Blog created successfully"));
   });
 

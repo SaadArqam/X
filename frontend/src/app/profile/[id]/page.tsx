@@ -7,7 +7,7 @@ import { scaleIn } from '@/lib/animations';
 import { Loader2 } from 'lucide-react';
 import { PostCard } from '@/components/blog/PostCard';
 
-const CountUp = ({ value }: { value: number }) => {
+const CountUp = ({ value = 0 }: { value?: number }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
   const count = useMotionValue(0);
@@ -41,7 +41,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     visible: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.3, ease: 'easeOut' }
+      transition: { duration: 0.3, ease: 'easeOut' as const }
     },
     exit: (direction: number) => ({
       x: direction > 0 ? -50 : 50,

@@ -1,53 +1,57 @@
 export interface User {
-  id: string;
+  id: number;
   name: string;
   username: string;
   email: string;
   avatar?: string;
   bio?: string;
   role: 'AUTHOR' | 'ADMIN';
-  postsCount: number;
-  likesCount: number;
-  followersCount: number;
-}
-
-export interface Comment {
-  id: string;
-  content: string;
-  author: { id: string; name: string; username: string; avatar?: string };
-  parentId?: string;
-  replies?: Comment[];
-  createdAt: string;
-  deletedAt?: string;
+  postsCount?: number;
+  likesCount?: number;
+  createdAt?: string;
 }
 
 export interface Blog {
-  id: string;
+  id: number;
   title: string;
   content: string;
-  excerpt: string;
+  excerpt?: string;
   coverImage?: string;
   tags: string[];
-  author: { id: string; name: string; username: string; avatar?: string };
+  author: User;
+  authorId: number;
   likesCount: number;
   commentsCount: number;
-  isLiked: boolean;
-  isBookmarked: boolean;
+  isLiked?: boolean;
+  isBookmarked?: boolean;
   status: 'draft' | 'published';
   createdAt: string;
   updatedAt: string;
 }
 
-export interface PaginatedResponse<T> {
-  data: T[];
+export interface Comment {
+  id: number;
+  content: string;
+  author: User;
+  blogId: number;
+  parentId?: number;
+  replies?: Comment[];
+  createdAt: string;
+  deletedAt?: string;
+}
+
+export interface PaginationMeta {
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
+  meta?: PaginationMeta;
 }

@@ -5,12 +5,30 @@ import logger from "../utils/logger";
 const MAX_LIMIT = 50;
 
 export class BlogService {
-  static async create(title: string, content: string, authorId: number) {
+  static async create(
+    title: string,
+    content: string,
+    authorId: number,
+    options?: {
+      excerpt?: string;
+      coverImage?: string;
+      tags?: string[];
+      published?: boolean;
+    }
+  ) {
     logger.info({ authorId, title }, "Creating new blog");
     return await prisma.blog.create({
-      data: { title, content, authorId },
+      data: {
+        title,
+        content,
+        authorId,
+        excerpt: options?.excerpt,
+        coverImage: options?.coverImage || null,
+        tags: options?.tags ?? [],
+        published: options?.published ?? true,
+      },
       include: {
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, username: true } },
       },
     });
   }
@@ -43,7 +61,7 @@ export class BlogService {
         skip,
         take: safeLimit,
         include: {
-          author: { select: { id: true, name: true } },
+          author: { select: { id: true, name: true, username: true } },
           _count: { select: { likes: true, comments: true } },
         },
       }),
@@ -121,7 +139,7 @@ export class BlogService {
         skip,
         take: safeLimit,
         include: {
-          author: { select: { id: true, name: true } },
+          author: { select: { id: true, name: true, username: true } },
           _count: { select: { likes: true, comments: true } },
         },
       }),
@@ -154,7 +172,7 @@ export class BlogService {
     const blog = await prisma.blog.findFirst({
       where: { id: blogId, deletedAt: null },
       include: {
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, username: true } },
         _count: { select: { likes: true, comments: true } },
       },
     });
@@ -204,7 +222,7 @@ export class BlogService {
       where: { id: blogId },
       data,
       include: {
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, username: true } },
       },
     });
   }

@@ -1,132 +1,85 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import { scaleIn } from '@/lib/animations';
-import { useAuthStore } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuthStore } from '@/lib/auth';
 import api from '@/lib/api';
-import { useToast } from '@/hooks/useToast';
-import { Loader2, CheckCircle2 } from 'lucide-react';
-
-const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const setAuth = useAuthStore((state) => state.setAuth);
   const router = useRouter();
-  const { toast } = useToast();
+  const { setAuth } = useAuthStore();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const res = await api.post('/auth/login', data);
-      setIsSuccess(true);
-      setAuth(res.data.user, res.data.accessToken);
-      setTimeout(() => router.push('/'), 1000);
-    } catch (error: any) {
-      toast(error.response?.data?.message || 'Login failed', 'error');
+      const res = await api.post('/auth/login', { email, password });
+      const { user, accessToken } = res.data.data;
+      setAuth(user, accessToken);
+      router.push('/');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Login failed');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center p-4">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="login-card"
-          variants={scaleIn}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="w-full max-w-md p-8 bg-gray-900 border border-gray-800 rounded-2xl shadow-xl"
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
-            <p className="text-gray-400 mt-2">Sign in to your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1c] px-4">
+      <div className="w-full max-w-md bg-gray-900 rounded-2xl border border-gray-800 p-8">
+        <h1 className="text-2xl font-bold text-white text-center mb-2">
+          Welcome back
+        </h1>
+        <p className="text-gray-400 text-center mb-8">
+          Sign in to your account
+        </p>
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded-lg text-red-400 text-sm">
+            {error}
           </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="relative">
-              <input
-                {...register('email')}
-                type="email"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
-              />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Email
-              </label>
-              {errors.email && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </motion.p>
-              )}
-            </div>
-
-            <div className="relative">
-              <input
-                {...register('password')}
-                type="password"
-                placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-700 pb-2 pt-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                disabled={isLoading || isSuccess}
-              />
-              <label className="absolute left-0 top-0 text-sm text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm peer-focus:text-blue-500">
-                Password
-              </label>
-              {errors.password && (
-                <motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </motion.p>
-              )}
-            </div>
-
-            <motion.button
-              type="submit"
-              disabled={isLoading || isSuccess}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-md shadow-blue-900/20 flex items-center justify-center space-x-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isSuccess ? (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center space-x-2">
-                  <CheckCircle2 size={20} />
-                  <span>Success!</span>
-                </motion.div>
-              ) : isLoading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <span>Sign In</span>
-              )}
-            </motion.button>
-          </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-gray-400 text-sm">
-              Don't have an account?{' '}
-              <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                Register here
-              </Link>
-            </p>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+            />
           </div>
-        </motion.div>
-      </AnimatePresence>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+        <p className="text-center text-gray-400 mt-6 text-sm">
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/register" className="text-blue-400 hover:underline">
+            Register here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

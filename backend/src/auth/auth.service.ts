@@ -9,13 +9,14 @@ import { env } from "../config/env";
 const REFRESH_TOKEN_EXPIRES_DAYS = 7;
 
 export class AuthService {
-  static async register(name: string, email: string, password: string) {
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+  static async register(name: string, username: string, email: string, password: string) {
+    const existingUser = await prisma.user.findFirst({
+      where: { OR: [{ email }, { username }] },
     });
 
     if (existingUser) {
-      throw new ApiError(409, "Email already registered");
+      if (existingUser.email === email) throw new ApiError(409, "Email already registered");
+      throw new ApiError(409, "Username already taken");
     }
 
     const hashedPassword = await bcrypt.hash(password, env.BCRYPT_ROUNDS);
@@ -23,12 +24,14 @@ export class AuthService {
     const user = await prisma.user.create({
       data: {
         name,
+        username,
         email,
         password: hashedPassword,
       },
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
         role: true,
         createdAt: true,
@@ -85,6 +88,7 @@ export class AuthService {
       user: {
         id: user.id,
         name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
       },

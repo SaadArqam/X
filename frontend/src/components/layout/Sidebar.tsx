@@ -18,7 +18,7 @@ export const Sidebar = () => {
 
   const navLinks = [
     { name: 'Feed', href: '/', icon: Home, show: true },
-    { name: 'Create Post', href: '/blog/create', icon: Edit3, show: isAuthenticated },
+    { name: 'Create Post', href: '/create', icon: Edit3, show: isAuthenticated },
     { name: 'Profile', href: user ? `/profile/${user.id}` : '#', icon: User, show: isAuthenticated },
     { name: 'Bookmarks', href: user ? `/profile/${user.id}?tab=bookmarks` : '#', icon: Bookmark, show: isAuthenticated },
   ];

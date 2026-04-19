@@ -1,8 +1,11 @@
-import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useInfiniteQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Blog, Comment, User, PaginatedResponse, ApiResponse } from '@/types';
-
-// --- Blogs ---
+import { Blog, Comment, User, ApiResponse } from '@/types';
 
 export const useBlogs = (search?: string, tag?: string) => {
   return useInfiniteQuery({
@@ -11,11 +14,11 @@ export const useBlogs = (search?: string, tag?: string) => {
       const res = await api.get('/blogs', {
         params: { page: pageParam, limit: 10, search, tag },
       });
-      return res.data; // { success, message, data: Blog[], meta: {...} }
+      return res.data;
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (lastPage.meta.hasNext) return lastPage.meta.page + 1;
+      if (lastPage.meta?.hasNext) return lastPage.meta.page + 1;
       return undefined;
     },
   });
@@ -28,7 +31,7 @@ export const useBlog = (id: string) => {
       const res = await api.get<ApiResponse<Blog>>(`/blogs/${id}`);
       return res.data.data;
     },
-    enabled: !!id,
+    enabled: !!id && id !== 'create',
   });
 };
 
@@ -75,30 +78,12 @@ export const useDeleteBlog = () => {
 export const useLikeBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       const res = await api.post<ApiResponse<Blog>>(`/blogs/${id}/like`);
-      return res.data;
+      return res.data.data;
     },
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['blog', id] });
-      const previousBlog = queryClient.getQueryData<Blog>(['blog', id]);
-      
-      if (previousBlog) {
-        queryClient.setQueryData<Blog>(['blog', id], {
-          ...previousBlog,
-          isLiked: !previousBlog.isLiked,
-          likesCount: previousBlog.isLiked ? previousBlog.likesCount - 1 : previousBlog.likesCount + 1,
-        });
-      }
-      return { previousBlog };
-    },
-    onError: (err, id, context) => {
-      if (context?.previousBlog) {
-        queryClient.setQueryData(['blog', id], context.previousBlog);
-      }
-    },
-    onSettled: (data, error, id) => {
-      queryClient.invalidateQueries({ queryKey: ['blog', id] });
+    onSettled: (_, __, id) => {
+      queryClient.invalidateQueries({ queryKey: ['blog', String(id)] });
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
     },
   });
@@ -107,41 +92,24 @@ export const useLikeBlog = () => {
 export const useBookmarkBlog = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: number) => {
       const res = await api.post<ApiResponse<Blog>>(`/blogs/${id}/bookmark`);
-      return res.data;
+      return res.data.data;
     },
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['blog', id] });
-      const previousBlog = queryClient.getQueryData<Blog>(['blog', id]);
-      
-      if (previousBlog) {
-        queryClient.setQueryData<Blog>(['blog', id], {
-          ...previousBlog,
-          isBookmarked: !previousBlog.isBookmarked,
-        });
-      }
-      return { previousBlog };
-    },
-    onError: (err, id, context) => {
-      if (context?.previousBlog) {
-        queryClient.setQueryData(['blog', id], context.previousBlog);
-      }
-    },
-    onSettled: (data, error, id) => {
-      queryClient.invalidateQueries({ queryKey: ['blog', id] });
+    onSettled: (_, __, id) => {
+      queryClient.invalidateQueries({ queryKey: ['blog', String(id)] });
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
     },
   });
 };
 
-// --- Comments ---
-
 export const useComments = (blogId: string) => {
   return useQuery({
     queryKey: ['comments', blogId],
     queryFn: async () => {
-      const res = await api.get<ApiResponse<Comment[]>>(`/blogs/${blogId}/comments`);
+      const res = await api.get<ApiResponse<Comment[]>>(
+        `/blogs/${blogId}/comments`
+      );
       return res.data.data;
     },
     enabled: !!blogId,
@@ -151,13 +119,24 @@ export const useComments = (blogId: string) => {
 export const useCreateComment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ blogId, content, parentId }: { blogId: string; content: string; parentId?: string }) => {
-      const res = await api.post<ApiResponse<Comment>>(`/blogs/${blogId}/comments`, { content, parentId });
+    mutationFn: async ({
+      blogId,
+      content,
+      parentId,
+    }: {
+      blogId: string;
+      content: string;
+      parentId?: string;
+    }) => {
+      const res = await api.post<ApiResponse<Comment>>(
+        `/blogs/${blogId}/comments`,
+        { content, parentId }
+      );
       return res.data.data;
     },
-    onSuccess: (data, { blogId }) => {
+    onSuccess: (_, { blogId }) => {
       queryClient.invalidateQueries({ queryKey: ['comments', blogId] });
-      queryClient.invalidateQueries({ queryKey: ['blog', blogId] }); // Update commentsCount
+      queryClient.invalidateQueries({ queryKey: ['blog', blogId] });
     },
   });
 };
@@ -167,21 +146,19 @@ export const useDeleteComment = () => {
   return useMutation({
     mutationFn: async ({ id, blogId }: { id: string; blogId: string }) => {
       await api.delete(`/comments/${id}`);
+      return blogId;
     },
-    onSuccess: (data, { blogId }) => {
+    onSuccess: (blogId) => {
       queryClient.invalidateQueries({ queryKey: ['comments', blogId] });
-      queryClient.invalidateQueries({ queryKey: ['blog', blogId] });
     },
   });
 };
-
-// --- Profile ---
 
 export const useProfile = (userId: string) => {
   return useQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
-      const res = await api.get<ApiResponse<{ user: User; blogs: PaginatedResponse<Blog>; bookmarkedBlogs: PaginatedResponse<Blog> }>>(`/users/${userId}/profile`);
+      const res = await api.get(`/users/${userId}/profile`);
       return res.data.data;
     },
     enabled: !!userId,

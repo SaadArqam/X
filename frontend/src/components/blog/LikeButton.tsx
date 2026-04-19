@@ -9,11 +9,11 @@ import { useState } from 'react';
 
 interface LikeButtonProps {
   blogId: string;
-  initialLiked: boolean;
-  initialCount: number;
+  initialLiked?: boolean;
+  initialCount?: number;
 }
 
-export const LikeButton = ({ blogId, initialLiked, initialCount }: LikeButtonProps) => {
+export const LikeButton = ({ blogId, initialLiked = false, initialCount = 0 }: LikeButtonProps) => {
   const { mutate, isPending } = useLikeBlog();
   const { isAuthenticated } = useAuthStore();
   const { toast } = useToast();

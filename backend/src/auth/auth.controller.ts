@@ -16,13 +16,24 @@ const COOKIE_OPTIONS = {
 
 export class AuthController {
   static register = asyncHandler(async (req: Request, res: Response) => {
-    const { name, email, password } = req.body;
-    const user = await AuthService.register(name, email, password);
+    const { name, username, email, password } = req.body;
+
+    // Create user
+    await AuthService.register(name, username, email, password);
+
+    // Immediately issue tokens (mirrors login flow — avoids a second round-trip)
+    const { user, accessToken, refreshToken } = await AuthService.login(
+      email,
+      password,
+      req.ip || "",
+      req.get("User-Agent") || ""
+    );
 
     logger.info({ email: user.email }, "User registered successfully");
     res
       .status(201)
-      .json(new ApiResponse(201, user, "User registered successfully"));
+      .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+      .json(new ApiResponse(201, { user, accessToken }, "User registered successfully"));
   });
 
   static login = asyncHandler(async (req: Request, res: Response) => {

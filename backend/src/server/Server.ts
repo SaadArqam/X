@@ -27,12 +27,17 @@ private initializeMiddlewares(): void {
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   };
+
+  // Handle ALL OPTIONS preflight requests immediately — must come before Helmet
   this.app.use(cors(corsOptions));
 
   // 2. Helmet after CORS
   this.app.use(
     helmet({
+      // Allow cross-origin fetches (Helmet defaults this to 'same-origin' which blocks our API)
+      crossOriginResourcePolicy: { policy: "cross-origin" },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],

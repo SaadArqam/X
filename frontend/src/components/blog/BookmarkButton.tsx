@@ -9,10 +9,10 @@ import { useState } from 'react';
 
 interface BookmarkButtonProps {
   blogId: string;
-  initialBookmarked: boolean;
+  initialBookmarked?: boolean;
 }
 
-export const BookmarkButton = ({ blogId, initialBookmarked }: BookmarkButtonProps) => {
+export const BookmarkButton = ({ blogId, initialBookmarked = false }: BookmarkButtonProps) => {
   const { mutate, isPending } = useBookmarkBlog();
   const { isAuthenticated } = useAuthStore();
   const { toast } = useToast();
