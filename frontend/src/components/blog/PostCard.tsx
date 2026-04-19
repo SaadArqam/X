@@ -30,7 +30,7 @@ export const PostCard = ({ blog }: { blog: Blog }) => {
       <Link href={`/blog/${blog.id}`} className="flex-1 w-full flex flex-col p-6">
         <motion.div className="w-full h-52 overflow-hidden relative border border-[#111111] mb-6 sharp-corners bg-neutral-100">
           {blog.coverImage ? (
-             <motion.img
+            <motion.img
               layoutId={`post-image-${blog.id}`}
               src={blog.coverImage}
               alt={blog.title}
@@ -38,14 +38,14 @@ export const PostCard = ({ blog }: { blog: Blog }) => {
             />
           ) : (
             <motion.div layoutId={`post-image-${blog.id}`} className="w-full h-full bg-divider flex items-center justify-center">
-               <span className="font-mono text-xs uppercase text-neutral-400">NO IMAGE PROVIDED</span>
+              <span className="font-mono text-xs uppercase text-neutral-400">NO IMAGE PROVIDED</span>
             </motion.div>
           )}
         </motion.div>
-        
+
         <div className="flex-1 flex flex-col">
           <motion.div variants={fadeUp} className="mb-2">
-             <span className="font-mono text-xs uppercase tracking-widest text-editorial font-bold">● {primaryTag}</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-editorial font-bold">● {primaryTag}</span>
           </motion.div>
 
           <motion.h2 variants={fadeUp} layoutId={`post-title-${blog.id}`} className="text-2xl font-serif font-bold italic text-ink mb-3 leading-tight line-clamp-2">
@@ -62,7 +62,7 @@ export const PostCard = ({ blog }: { blog: Blog }) => {
           </motion.div>
         </div>
       </Link>
-      
+
       <motion.div variants={fadeUp} className="px-6 py-4 border-t border-[#111111] bg-white flex items-center justify-between z-10 relative">
         <div className="flex items-center space-x-6">
           <LikeButton blogId={blog.id} initialLiked={blog.isLiked} initialCount={blog.likesCount} />

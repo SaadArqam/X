@@ -8,7 +8,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
   const today = format(new Date(), 'EEEE, MMMM do, yyyy');
 
   return (
-    <div className="min-h-screen text-ink newsprint-texture flex flex-col">
+    <div className="min-h-screen bg-[#F9F9F7] text-ink newsprint-texture flex flex-col">
       <header className="fixed top-0 left-0 w-full z-50 bg-[#111111] text-white border-b-4 border-[#111111] h-[60px] flex items-center justify-between px-6">
         <h1 className="text-2xl font-serif italic tracking-tight">DevBlog.</h1>
         <div className="hidden md:flex items-center space-x-4 font-mono text-xs text-neutral-400">
@@ -22,7 +22,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 
       <div className="flex flex-1 pt-[60px]">
         <Sidebar />
-        
+
         <main className="flex-1 md:ml-64 relative flex min-h-screen">
           <div className="flex-1 max-w-4xl mx-auto w-full border-x border-[#111111] bg-newsprint min-h-screen shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)]">
             {children}
