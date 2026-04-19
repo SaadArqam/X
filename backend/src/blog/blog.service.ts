@@ -85,6 +85,57 @@ export class BlogService {
     };
   }
 
+  static async getMyBlogs(
+    authorId: number,
+    page: number = 1,
+    limit: number = 10,
+    search?: string
+  ) {
+    const skip = (page - 1) * limit;
+    const where: any = {
+      authorId,
+      deletedAt: null,
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { content: { contains: search, mode: "insensitive" } },
+        ],
+      }),
+    };
+
+    const [blogs, total] = await Promise.all([
+      prisma.blog.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: {
+          author: { select: { id: true, name: true } },
+          _count: { select: { likes: true, comments: true } },
+        },
+      }),
+      prisma.blog.count({ where }),
+    ]);
+
+    const formattedBlogs = blogs.map((blog) => ({
+      ...blog,
+      likesCount: blog._count.likes,
+      commentsCount: blog._count.comments,
+      _count: undefined,
+    }));
+
+    return {
+      blogs: formattedBlogs,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+
   static async getById(blogId: number, currentUserId?: number) {
     const blog = await prisma.blog.findFirst({
       where: { id: blogId, deletedAt: null },

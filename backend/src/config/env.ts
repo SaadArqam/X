@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const envSchema = z.object({
-  PORT: z.string().transform(Number).default("3000"),
+  PORT: z.string().transform(Number).default(5000),
   DATABASE_URL: z.string().url(),
   ACCESS_TOKEN_SECRET: z.string().min(32),
   REFRESH_TOKEN_SECRET: z.string().min(32),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  CORS_ORIGIN: z.string().default("*"),
+  CORS_ORIGIN: z.string().default("http://localhost:3000"),
   REDIS_URL: z.string().url().optional(),
 });
 

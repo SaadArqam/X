@@ -1,25 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject, ZodError } from "zod";
+import { z, ZodError } from "zod";
 import { ApiError } from "../utils/ApiError";
 
 export const validate =
-  (schema: AnyZodObject) =>
+  (schemas: { body?: z.ZodSchema<any>; query?: z.ZodSchema<any>; params?: z.ZodSchema<any> }) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      const parsed = schema.parse({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      });
-
-      if (parsed.body) req.body = parsed.body;
-      if (parsed.query) req.query = parsed.query as any;
-      if (parsed.params) req.params = parsed.params as any;
+      if (schemas.body) req.body = schemas.body.parse(req.body);
+      if (schemas.query) req.query = schemas.query.parse(req.query);
+      if (schemas.params) req.params = schemas.params.parse(req.params);
 
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.errors.map((issue) => ({
+        const errorMessages = error.issues.map((issue) => ({
           path: issue.path.join("."),
           message: issue.message,
         }));
@@ -28,4 +22,3 @@ export const validate =
       next(error);
     }
   };
-

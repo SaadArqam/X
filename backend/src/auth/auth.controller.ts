@@ -31,7 +31,7 @@ export class AuthController {
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json(new ApiResponse(200, { user, accessToken }, "Login successful"));
@@ -48,7 +48,7 @@ export class AuthController {
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json(new ApiResponse(200, { accessToken }, "Token refreshed"));
@@ -67,7 +67,7 @@ export class AuthController {
       .clearCookie("refreshToken", {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
       })
       .json(new ApiResponse(200, null, "Logout successful"));
   });
@@ -84,7 +84,7 @@ export class AuthController {
       .clearCookie("refreshToken", {
         httpOnly: true,
         secure: env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
       })
       .json(new ApiResponse(200, null, "Logged out from all sessions"));
   });

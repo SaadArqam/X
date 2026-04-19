@@ -15,10 +15,16 @@ export const Layout = ({ children }: { children: ReactNode }) => {
           <div className="sticky top-6">
             <div className="bg-gray-900 rounded-xl p-5 border border-gray-800 shadow-xl">
               <h3 className="font-bold text-white mb-4">Trending Tech</h3>
-              {['#React', '#Nextjs14', '#FramerMotion', '#TailwindCSS', '#TypeScript'].map(tag => (
+              {[
+                { tag: '#React', count: 8.4 },
+                { tag: '#Nextjs14', count: 5.2 },
+                { tag: '#FramerMotion', count: 3.1 },
+                { tag: '#TailwindCSS', count: 7.9 },
+                { tag: '#TypeScript', count: 6.5 }
+              ].map(({ tag, count }) => (
                 <div key={tag} className="mb-3">
                   <p className="text-sm font-semibold text-gray-200 hover:text-blue-400 cursor-pointer transition">{tag}</p>
-                  <p className="text-xs text-gray-500">{(Math.random() * 10).toFixed(1)}k posts</p>
+                  <p className="text-xs text-gray-500">{count}k posts</p>
                 </div>
               ))}
             </div>

@@ -10,8 +10,17 @@ import { scaleIn, fadeUp } from '@/lib/animations';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+import { useState, useEffect } from 'react';
+
 export default function PostDetailPage({ params }: { params: { id: string } }) {
   const { data: blog, isLoading, isError } = useBlog(params.id);
+  const [relativeTime, setRelativeTime] = useState<string>('');
+
+  useEffect(() => {
+    if (blog?.createdAt) {
+      setRelativeTime(formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true }));
+    }
+  }, [blog?.createdAt]);
 
   if (isLoading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={32} /></div>;
   if (isError || !blog) return <div className="p-20 text-center text-red-500">Post not found.</div>;
@@ -47,7 +56,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
                 </div>
                 <div>
                   <p className="text-white font-semibold group-hover:text-blue-400 transition-colors">{blog.author.name}</p>
-                  <p className="text-xs text-gray-400">{formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}</p>
+                  <p className="text-xs text-gray-400">{relativeTime}</p>
                 </div>
               </Link>
             </div>

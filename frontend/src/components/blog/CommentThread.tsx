@@ -3,7 +3,7 @@
 import { useComments, useCreateComment, useDeleteComment } from '@/hooks/api';
 import { Comment } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '@/lib/auth';
 import { ChevronDown, MessageSquare, Trash2, Send, Loader2 } from 'lucide-react';
@@ -14,6 +14,7 @@ const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: string }) 
   const [isExpanded, setIsExpanded] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState('');
+  const [relativeTime, setRelativeTime] = useState('');
   const { user } = useAuthStore();
   const { mutate: createComment, isPending: isCreating } = useCreateComment();
   const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
@@ -21,6 +22,12 @@ const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: string }) 
 
   const isAuthor = user?.id === comment.author.id;
   const isDeleted = !!comment.deletedAt;
+
+  useEffect(() => {
+    if (comment.createdAt) {
+      setRelativeTime(formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true }));
+    }
+  }, [comment.createdAt]);
 
   const handleReply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +71,7 @@ const CommentItem = ({ comment, blogId }: { comment: Comment; blogId: string }) 
                   {isDeleted ? 'Deleted User' : comment.author.name}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  {relativeTime}
                 </span>
               </div>
               {isAuthor && !isDeleted && (

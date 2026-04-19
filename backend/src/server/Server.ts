@@ -56,10 +56,10 @@ export class Server {
     });
 
     // 404 handler
-    this.app.use("*", (req, res) => {
+    this.app.use((req, res, next) => {
       res.status(404).json({
         success: false,
-        message: `Can't find ${req.originalUrl} on this server!`,
+        message: `Route not found: ${req.originalUrl}`,
       });
     });
   }

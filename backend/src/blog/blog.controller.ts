@@ -15,9 +15,14 @@ export class BlogController {
   });
 
   static getPublished = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const search = req.query.search as string;
+    const pageParam = Array.isArray(req.query.page) ? req.query.page[0] : req.query.page;
+    const limitParam = Array.isArray(req.query.limit) ? req.query.limit[0] : req.query.limit;
+    const searchParam = Array.isArray(req.query.search) ? req.query.search[0] : req.query.search;
+
+    const page = pageParam ? Number(pageParam) : 1;
+    const limit = limitParam ? Number(limitParam) : 10;
+    const search = typeof searchParam === "string" ? searchParam : undefined;
+
     const currentUserId = req.user?.userId;
 
     const { blogs, pagination } = await BlogService.getPublished(page, limit, search, currentUserId);
@@ -25,14 +30,14 @@ export class BlogController {
   });
 
   static getById = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = parseInt(req.params.id);
+    const blogId = Number(req.params.id);
     const currentUserId = req.user?.userId;
     const blog = await BlogService.getById(blogId, currentUserId);
     res.status(200).json(new ApiResponse(200, blog, "Blog fetched successfully"));
   });
 
   static update = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = parseInt(req.params.id);
+    const blogId = Number(req.params.id);
     const { title, content, published } = req.body;
     const { userId, role } = req.user!;
 
@@ -41,7 +46,7 @@ export class BlogController {
   });
 
   static delete = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = parseInt(req.params.id);
+    const blogId = Number(req.params.id);
     const { userId, role } = req.user!;
 
     await BlogService.softDelete(blogId, userId, role);
@@ -50,7 +55,16 @@ export class BlogController {
 
   static getMyBlogs = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.userId;
-    const blogs = await BlogService.getMyBlogs(userId);
-    res.status(200).json(new ApiResponse(200, blogs, "Your blogs fetched successfully"));
+    
+    const pageParam = Array.isArray(req.query.page) ? req.query.page[0] : req.query.page;
+    const limitParam = Array.isArray(req.query.limit) ? req.query.limit[0] : req.query.limit;
+    const searchParam = Array.isArray(req.query.search) ? req.query.search[0] : req.query.search;
+
+    const page = pageParam ? Number(pageParam) : 1;
+    const limit = limitParam ? Number(limitParam) : 10;
+    const search = typeof searchParam === "string" ? searchParam : undefined;
+
+    const { blogs, pagination } = await BlogService.getMyBlogs(userId, page, limit, search);
+    res.status(200).json(new ApiResponse(200, blogs, "Your blogs fetched successfully", pagination));
   });
 }

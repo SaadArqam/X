@@ -9,7 +9,7 @@ import { scaleIn } from '@/lib/animations';
 import { useAuthStore } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useToast } from '@/hooks/useToast';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 
@@ -35,7 +35,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', data);
+      const res = await api.post('/auth/register', data);
       setIsSuccess(true);
       setAuth(res.data.user, res.data.accessToken);
       setTimeout(() => router.push('/'), 1000);

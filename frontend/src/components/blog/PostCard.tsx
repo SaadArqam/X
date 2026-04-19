@@ -9,7 +9,15 @@ import { LikeButton } from './LikeButton';
 import { BookmarkButton } from './BookmarkButton';
 import { MessageSquare } from 'lucide-react';
 
+import { useState, useEffect } from 'react';
+
 export const PostCard = ({ blog }: { blog: Blog }) => {
+  const [relativeTime, setRelativeTime] = useState<string>('');
+
+  useEffect(() => {
+    setRelativeTime(formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true }));
+  }, [blog.createdAt]);
+
   return (
     <motion.div
       variants={staggerContainer}
@@ -40,7 +48,7 @@ export const PostCard = ({ blog }: { blog: Blog }) => {
             <div className="flex-1 min-w-0 flex items-center space-x-2">
               <span className="text-sm font-semibold text-gray-200 truncate">{blog.author.name}</span>
               <span className="text-xs text-gray-500 shrink-0">•</span>
-              <span className="text-xs text-gray-500 truncate">{formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true })}</span>
+              <span className="text-xs text-gray-500 truncate">{relativeTime}</span>
             </div>
           </motion.div>
 

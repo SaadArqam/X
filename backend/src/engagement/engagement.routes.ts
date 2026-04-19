@@ -6,9 +6,9 @@ import { engagementSchema } from "./engagement.schema";
 
 const router = Router();
 
-router.post("/like/:blogId", authMiddleware, validate(engagementSchema), EngagementController.toggleLike);
-router.post("/bookmark/:blogId", authMiddleware, validate(engagementSchema), EngagementController.toggleBookmark);
+router.post("/like/:blogId", authMiddleware, validate({ params: engagementSchema }), EngagementController.toggleLike);
+router.post("/bookmark/:blogId", authMiddleware, validate({ params: engagementSchema }), EngagementController.toggleBookmark);
 router.get("/bookmarks", authMiddleware, EngagementController.getBookmarks);
-router.get("/like-count/:blogId", validate(engagementSchema), EngagementController.getLikeCount);
+router.get("/like-count/:blogId", validate({ params: engagementSchema }), EngagementController.getLikeCount);
 
 export default router;

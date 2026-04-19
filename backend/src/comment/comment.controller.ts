@@ -6,7 +6,7 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 
 export class CommentController {
   static create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const blogId = parseInt(req.params.blogId);
+    const blogId = Number(req.params.blogId);
     const { content, parentId } = req.body;
     const userId = req.user!.userId;
 
@@ -15,13 +15,13 @@ export class CommentController {
   });
 
   static getByBlog = asyncHandler(async (req: Request, res: Response) => {
-    const blogId = parseInt(req.params.blogId);
+    const blogId = Number(req.params.blogId);
     const comments = await CommentService.getCommentsByBlog(blogId);
     res.status(200).json(new ApiResponse(200, comments, "Comments fetched successfully"));
   });
 
   static update = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const commentId = parseInt(req.params.id);
+    const commentId = Number(req.params.id);
     const { content } = req.body;
     const { userId, role } = req.user!;
 
@@ -30,7 +30,7 @@ export class CommentController {
   });
 
   static delete = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const commentId = parseInt(req.params.id);
+    const commentId = Number(req.params.id);
     const { userId, role } = req.user!;
 
     await CommentService.softDelete(commentId, userId, role);
