@@ -2,8 +2,9 @@ import { app } from "./app";
 import { env } from "./config/env";
 import logger from "./utils/logger";
 
-const server = app.listen(env.PORT, () => {
-  logger.info(`🚀 Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+const PORT = process.env.PORT || env.PORT || 8080;
+const server = app.listen(PORT, () => {
+  logger.info(`🚀 Server running on port ${PORT} in ${env.NODE_ENV} mode`);
 });
 
 // Handle uncaught exceptions — log and exit so process manager can restart

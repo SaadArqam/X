@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import logger from "../utils/logger";
 import { env } from "../config/env";
+import { ApiError } from "../utils/ApiError";
 
 const COOKIE_OPTIONS = {
   httpOnly: true,

@@ -72,7 +72,7 @@ export class BlogService {
     let userBookmarks = new Set<number>();
 
     if (currentUserId) {
-      const blogIds = blogs.map((b) => b.id);
+      const blogIds = blogs.map((b: any) => b.id);
       const [likes, bookmarks] = await Promise.all([
         prisma.like.findMany({
           where: { userId: currentUserId, blogId: { in: blogIds } },
@@ -83,8 +83,8 @@ export class BlogService {
           select: { blogId: true },
         }),
       ]);
-      userLikes = new Set(likes.map((l) => l.blogId));
-      userBookmarks = new Set(bookmarks.map((b) => b.blogId));
+      userLikes = new Set(likes.map((l: any) => l.blogId));
+      userBookmarks = new Set(bookmarks.map((b: any) => b.blogId));
     }
 
     const totalPages = Math.ceil(total / safeLimit);
@@ -149,7 +149,7 @@ export class BlogService {
     let userLikes = new Set<number>();
     let userBookmarks = new Set<number>();
 
-    const blogIds = blogs.map((b) => b.id);
+    const blogIds = blogs.map((b: any) => b.id);
     if (blogIds.length > 0) {
       const [likes, bookmarks] = await Promise.all([
         prisma.like.findMany({
@@ -161,8 +161,8 @@ export class BlogService {
           select: { blogId: true },
         }),
       ]);
-      userLikes = new Set(likes.map((l) => l.blogId));
-      userBookmarks = new Set(bookmarks.map((b) => b.blogId));
+      userLikes = new Set(likes.map((l: any) => l.blogId));
+      userBookmarks = new Set(bookmarks.map((b: any) => b.blogId));
     }
 
     const totalPages = Math.ceil(total / safeLimit);

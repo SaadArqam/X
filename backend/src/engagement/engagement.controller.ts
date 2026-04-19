@@ -20,6 +20,9 @@ export class EngagementController {
   static toggleBookmark = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { blogId } = req.body;
     const userId = req.user!.userId;
+    
+    console.log("BOOKMARK CREATE:", blogId, userId);
+    
     try {
       const result = await EngagementService.toggleBookmark(Number(blogId), userId);
       res.status(200).json(new ApiResponse(200, result, result.bookmarked ? "Blog bookmarked" : "Bookmark removed"));
@@ -32,6 +35,9 @@ export class EngagementController {
   static getBookmarks = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.userId;
     const bookmarks = await EngagementService.getUserBookmarks(userId);
+    
+    console.log("BOOKMARK FETCH:", bookmarks.length ? `${bookmarks.length} bookmarks found.` : "Empty []");
+    
     res.status(200).json(new ApiResponse(200, bookmarks, "Bookmarks fetched successfully"));
   });
 

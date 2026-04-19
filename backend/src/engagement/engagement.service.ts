@@ -36,7 +36,14 @@ export class EngagementService {
       return { bookmarked: false };
     }
 
-    await prisma.bookmark.create({ data: { blogId, userId } });
+    // Creating explicitly passing userId along with blogId mapping 
+    await prisma.bookmark.create({
+      data: {
+        userId: userId,
+        blogId: blogId,
+      },
+    });
+
     logger.debug({ blogId, userId }, "Blog bookmarked");
     return { bookmarked: true };
   }

@@ -5,14 +5,14 @@ import { ApiError } from "../utils/ApiError";
 import logger from "../utils/logger";
 
 export const errorMiddleware = (
-  err: unknown,
+  err: any,
   req: Request,
   res: Response,
   _next: NextFunction
 ) => {
   let statusCode = 500;
   let message = "Internal server error";
-  let errors: unknown[] = [];
+  let errors: any[] = [];
 
   // Handle ApiError (our custom error)
   if (err instanceof ApiError) {
@@ -20,7 +20,7 @@ export const errorMiddleware = (
     message = err.message;
     errors = err.errors;
 
-  // Handle Prisma known request errors
+    // Handle Prisma known request errors
   } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     switch (err.code) {
       case "P2002": {
@@ -46,12 +46,12 @@ export const errorMiddleware = (
         break;
     }
 
-  // Handle Prisma validation errors
+    // Handle Prisma validation errors
   } else if (err instanceof Prisma.PrismaClientValidationError) {
     statusCode = 400;
     message = "Invalid data provided";
 
-  // Handle JWT errors
+    // Handle JWT errors
   } else if (err instanceof jwt.TokenExpiredError) {
     statusCode = 401;
     message = "Token has expired";
@@ -62,7 +62,7 @@ export const errorMiddleware = (
     statusCode = 401;
     message = "Token not yet valid";
 
-  // Handle generic errors
+    // Handle generic errors
   } else if (err instanceof Error) {
     message = err.message || "Something went wrong";
     statusCode = (err as NodeJS.ErrnoException & { statusCode?: number }).statusCode ?? 500;
