@@ -9,30 +9,24 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'DevBlog — Developer Social Platform',
-    template: '%s | DevBlog',
+    default: "DevX",
+    template: "%s | DevX"
   },
-  description:
-    'A modern social blogging platform for developers to share knowledge, connect, and grow.',
-  keywords: ['developer blog', 'programming', 'technology', 'open source'],
-  authors: [{ name: 'DevBlog' }],
+  description: "A modern developer social platform to share, explore, and collaborate on projects.",
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
-    title: 'DevBlog — Developer Social Platform',
-    description:
-      'A modern social blogging platform for developers to share knowledge, connect, and grow.',
+    title: "DevX",
+    description: "Developer social platform",
     type: 'website',
     locale: 'en_US',
-    siteName: 'DevBlog',
+    siteName: 'DevX',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DevBlog — Developer Social Platform',
-    description:
-      'A modern social blogging platform for developers.',
-  },
-  robots: {
-    index: true,
-    follow: true,
+    title: 'DevX',
+    description: 'A modern social blogging platform for developers.',
   },
 };
 
@@ -42,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-[#030712]`}>
+    <html lang="en">
+      <body className={`${inter.className} bg-[#F9F9F7]`}>
         <Providers>
           <Layout>
             <PageTransition>{children}</PageTransition>

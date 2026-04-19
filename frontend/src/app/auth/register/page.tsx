@@ -35,7 +35,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#F9F9F7] px-4">
       <div className="w-full max-w-md border border-[#111111] bg-[#F9F9F7] p-8">
         <h1 className="font-serif text-4xl font-bold text-[#111111] text-center mb-2">
-          DevBlog.
+          Dev<span className="text-editorial">X</span>
         </h1>
         <p className="font-mono text-xs uppercase tracking-widest text-neutral-500 text-center mb-8">
           Create your account
